@@ -7,7 +7,13 @@
 import argparse
 import matplotlib.pyplot as plt
 import numpy as np
+import random
 
+CONSTANTE_REPULSION = 0.1
+CONSTANTE_ATRACCION = 5.0
+
+MAX_X = 100
+MAX_Y = 100
 
 class LayoutGraph:
 
@@ -27,7 +33,7 @@ class LayoutGraph:
 
         # Inicializo estado
         # Completar
-        self.posiciones = {}
+        self.posiciones = self.coordenadas_aleatorias(self.grafo[0])
         self.fuerzas = {}
 
         # Guardo opciones
@@ -38,6 +44,12 @@ class LayoutGraph:
         self.c1 = c1
         self.c2 = c2
 
+    def coordenadas_aleatorias(self, vertices):
+        posiciones = {}
+        for v in vertices:
+            posiciones[v] = np.array([random.randrange(0, MAX_X), random.randrange(0, MAX_Y)])
+        return posiciones
+
     def layout(self):
         """
         Aplica el algoritmo de Fruchtermann-Reingold para obtener (y mostrar)
@@ -45,6 +57,22 @@ class LayoutGraph:
         """
         pass
 
+def lee_grafo_archivo(file_path):
+    vertices = []
+    aristas = []
+    f = open(file_path, 'r')
+    cant = int(f.readline())
+
+    for i in range(cant):
+        vertices += [f.readline()[:-1]]
+
+    linea = f.readline()
+    while linea:
+        aux = linea.split()
+        arista = (aux[0], aux[1])
+        aristas += [arista]
+        linea = f.readline()
+    return (vertices, aristas)
 
 def main():
     # Definimos los argumentos de linea de comando que aceptamos
@@ -63,6 +91,14 @@ def main():
         help='Cantidad de iteraciones a efectuar',
         default=50
     )
+
+    parser.add_argument(
+        '--refresh',
+        type=int,
+        help='Cada cuantas iteraciones mostrar el nuevo grafo',
+        default=1
+    )
+
     # Temperatura inicial
     parser.add_argument(
         '--temp',
@@ -70,6 +106,7 @@ def main():
         help='Temperatura inicial',
         default=100.0
     )
+
     # Archivo del cual leer el grafo
     parser.add_argument(
         'file_name',
@@ -78,30 +115,28 @@ def main():
 
     args = parser.parse_args()
 
-    # Descomentar abajo para ver funcionamiento de argparse
-    print(args.verbose)
-    print(args.iters)
-    print(args.file_name)
-    print(args.temp)
-    return
+    grafo = lee_grafo_archivo(args.file_name)
 
-    # # TODO: Borrar antes de la entrega
-    # grafo1 = ([1, 2, 3, 4, 5, 6, 7],
-    #           [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 1)])
-    #
-    # # Creamos nuestro objeto LayoutGraph
-    # layout_gr = LayoutGraph(
-    #     grafo1,  # TODO: Cambiar para usar grafo leido de archivo
-    #     iters=args.iters,
-    #     refresh=1,
-    #     c1=0.1,
-    #     c2=5.0,
-    #     verbose=args.verbose
-    # )
-    #
-    # # Ejecutamos el layout
-    # layout_gr.layout()
+    # Descomentar abajo para ver funcionamiento de argparse
+    # print(args.verbose)
+    # print(args.iters)
+    # print(args.file_name)
+    # print(args.temp)
     # return
+    # TODO: Borrar antes de la entrega
+    # Creamos nuestro objeto LayoutGraph
+    layout_gr = LayoutGraph(
+        grafo,  # TODO: Cambiar para usar grafo leido de archivo
+        iters = args.iters,
+        refresh = args.refresh,
+        c1 = CONSTANTE_REPULSION,
+        c2 = CONSTANTE_ATRACCION,
+        verbose = args.verbose
+    )
+    
+    # Ejecutamos el layout
+    layout_gr.layout()
+    return
 
 
 if __name__ == '__main__':
