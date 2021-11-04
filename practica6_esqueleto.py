@@ -55,6 +55,10 @@ class LayoutGraph:
         Aplica el algoritmo de Fruchtermann-Reingold para obtener (y mostrar)
         un layout
         """
+
+        for u, v in self.grafo[1]:
+            plt.plot(self.posiciones[u].tolist(), self.posiciones[v].tolist(), marker='o')
+        plt.show()
         pass
 
 def lee_grafo_archivo(file_path):
