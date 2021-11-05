@@ -12,6 +12,7 @@ import math
 
 CONSTANTE_REPULSION = 0.1
 CONSTANTE_ATRACCION = 5.0
+CONSTANTE_ESPARCIMIENTO = 1
 
 MAX_X = 100
 MAX_Y = 100
@@ -45,6 +46,8 @@ class LayoutGraph:
         self.c1 = c1
         self.c2 = c2
 
+        self.k = CONSTANTE_ESPARCIMIENTO * math.sqrt((MAX_X * MAX_Y)/len(self.grafo[0]))
+
     def coordenadas_aleatorias(self, vertices):
         posiciones = {}
         for v in vertices:
@@ -53,52 +56,71 @@ class LayoutGraph:
 
     @property
     def initialize_accumulators(self):
-        accum = {}
-        for v in self.grafo[0]:
-            accum[v] = 0
+        accum = {'x': {}, 'y': {}}
+        for key in accum:
+            for v in self.grafo[0]:
+                accum[key][v] = 0
         return accum
-    
-    def dist_euclidiana(self, coord_a, coord_b):
-        return math.sqrt((coord_a[0] - coord_b[0])**2 + (coord_a[1] - coord_b[1])**2)
 
-    def f_repultion(self, v0, v1):
-        posiciones = self.posiciones
-        return self.dist_euclidiana(self, posiciones[v0], posiciones[v1])
+    def f_attraction(self, distance):
+        return distance**2 / self.k
 
-    def f_attraccion(self, v0, v1):
-        posiciones = self.posiciones
-        return self.dist_euclidiana(self, posiciones[v0], posiciones[v1])
-        
+    def f_repulsion(self, distance):
+        return self.k**2 / distance
+
+    def compute_repulsion_forces(self, accum):
+        for n_i in self.grafo[0]:
+            for n_j in self.grafo[0]:
+                if n_i != n_j:
+                    distance = np.linalg.norm(self.posiciones[n_i] - self.posiciones[n_j])
+                    mod_fa = self.f_repulsion(distance)
+                    f_x = mod_fa * (self.posiciones[n_j][0] - self.posiciones[n_i][0]) / distance
+                    f_y = mod_fa * (self.posiciones[n_j][1] - self.posiciones[n_i][1]) / distance
+
+                    accum['x'][n_i] += f_x
+                    accum['y'][n_i] += f_y
+                    accum['x'][n_j] -= f_x
+                    accum['y'][n_j] -= f_y
+
+
+    def compute_attraction_forces(self, accum):
+        for n_i, n_j in self.grafo[1]:
+            distance = np.linalg.norm(self.posiciones[n_i] - self.posiciones[n_j])
+            mod_fa = self.f_attraction(distance)
+            f_x = mod_fa * (self.posiciones[n_j][0] - self.posiciones[n_i][0]) / distance
+            f_y = mod_fa * (self.posiciones[n_j][1] - self.posiciones[n_i][1]) / distance
+
+            accum['x'][n_i] += f_x
+            accum['y'][n_i] += f_y
+            accum['x'][n_j] -= f_x
+            accum['y'][n_j] -= f_y
+
+    def update_positions(self, accum):
+        for node in self.grafo[0]:
+            self.posiciones[node][0] +=  accum['x'][node]
+            self.posiciones[node][1] +=  accum['y'][node]
+
+    def step(self):
+        accum = self.initialize_accumulators
+        self.compute_attraction_forces(accum)
+        self.compute_repulsion_forces(accum)
+        self.update_positions(accum)
+        print(accum)
+
     def layout(self):
         """
         Aplica el algoritmo de Fruchtermann-Reingold para obtener (y mostrar)
         un layout
         """
-        for u, v in self.grafo[1]:
-            vert1 = self.posiciones[u].tolist()
-            vert2 = self.posiciones[v].tolist()
-            plt.plot([vert1[0], vert2[0]], [vert1[1], vert2[1]], marker='o')
-        plt.show()
+        # for u, v in self.grafo[1]:
+        #     vert1 = self.posiciones[u].tolist()
+        #     vert2 = self.posiciones[v].tolist()
+        #     plt.plot([vert1[0], vert2[0]], [vert1[1], vert2[1]], marker='o')
+        # plt.show()
 
         for k in range(1, self.iters):
-            # Inicializaamos los acumuladores en cero
-            accum = self.initialize_accumulators()
+            self.step()
 
-            # Calculamos fuerza de atraccion
-            for e in self.grafo[1]:
-                f = self.f_attraction(e)
-                accum[e[0]] += f
-                accum[e[1]] -= f
-
-            # Calculamos fuerzas de repulsion
-            for v in self.grafo[0]:
-                for u in self.grafo[0]:
-                    if u != v :
-                        f = self.f_repultion(u, v)
-                        accum[v] += f
-                        accum[u] -= f
-
-            # Actualizar posiciones. A ́un no implementado.
         pass
 
 def lee_grafo_archivo(file_path):
