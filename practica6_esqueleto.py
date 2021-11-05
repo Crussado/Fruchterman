@@ -8,6 +8,7 @@ import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+import math
 
 CONSTANTE_REPULSION = 0.1
 CONSTANTE_ATRACCION = 5.0
@@ -50,6 +51,24 @@ class LayoutGraph:
             posiciones[v] = np.array([random.randrange(0, MAX_X), random.randrange(0, MAX_Y)])
         return posiciones
 
+    @property
+    def initialize_accumulators(self):
+        accum = {}
+        for v in self.grafo[0]:
+            accum[v] = 0
+        return accum
+    
+    def dist_euclidiana(self, coord_a, coord_b):
+        return math.sqrt((coord_a[0] - coord_b[0])**2 + (coord_a[1] - coord_b[1])**2)
+
+    def f_repultion(self, v0, v1):
+        posiciones = self.posiciones
+        return self.dist_euclidiana(self, posiciones[v0], posiciones[v1])
+
+    def f_attraccion(self, v0, v1):
+        posiciones = self.posiciones
+        return self.dist_euclidiana(self, posiciones[v0], posiciones[v1])
+        
     def layout(self):
         """
         Aplica el algoritmo de Fruchtermann-Reingold para obtener (y mostrar)
@@ -60,6 +79,26 @@ class LayoutGraph:
             vert2 = self.posiciones[v].tolist()
             plt.plot([vert1[0], vert2[0]], [vert1[1], vert2[1]], marker='o')
         plt.show()
+
+        for k in range(1, self.iters):
+            # Inicializaamos los acumuladores en cero
+            accum = self.initialize_accumulators()
+
+            # Calculamos fuerza de atraccion
+            for e in self.grafo[1]:
+                f = self.f_attraction(e)
+                accum[e[0]] += f
+                accum[e[1]] -= f
+
+            # Calculamos fuerzas de repulsion
+            for v in self.grafo[0]:
+                for u in self.grafo[0]:
+                    if u != v :
+                        f = self.f_repultion(u, v)
+                        accum[v] += f
+                        accum[u] -= f
+
+            # Actualizar posiciones. A ́un no implementado.
         pass
 
 def lee_grafo_archivo(file_path):
