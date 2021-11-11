@@ -56,10 +56,9 @@ class LayoutGraph:
 
     @property
     def initialize_accumulators(self):
-        accum = {'x': {}, 'y': {}}
-        for key in accum:
-            for v in self.grafo[0]:
-                accum[key][v] = 0
+        accum = {}
+        for v in self.grafo[0]:
+            accum[v] = np.array([0, 0])
         return accum
 
     def f_attraction(self, distance):
@@ -74,38 +73,29 @@ class LayoutGraph:
                 if n_i != n_j:
                     distance = np.linalg.norm(self.posiciones[n_i] - self.posiciones[n_j])
                     mod_fa = self.f_repulsion(distance)
-                    f_x = mod_fa * (self.posiciones[n_j][0] - self.posiciones[n_i][0]) / distance
-                    f_y = mod_fa * (self.posiciones[n_j][1] - self.posiciones[n_i][1]) / distance
+                    f = mod_fa * (self.posiciones[n_j] - self.posiciones[n_i]) / distance
 
-                    accum['x'][n_i] += f_x
-                    accum['y'][n_i] += f_y
-                    accum['x'][n_j] -= f_x
-                    accum['y'][n_j] -= f_y
-
+                    accum[n_i] = accum[n_i] + f
+                    accum[n_j] = accum[n_j] - f
 
     def compute_attraction_forces(self, accum):
         for n_i, n_j in self.grafo[1]:
             distance = np.linalg.norm(self.posiciones[n_i] - self.posiciones[n_j])
             mod_fa = self.f_attraction(distance)
-            f_x = mod_fa * (self.posiciones[n_j][0] - self.posiciones[n_i][0]) / distance
-            f_y = mod_fa * (self.posiciones[n_j][1] - self.posiciones[n_i][1]) / distance
+            f = mod_fa * (self.posiciones[n_j] - self.posiciones[n_i]) / distance
 
-            accum['x'][n_i] += f_x
-            accum['y'][n_i] += f_y
-            accum['x'][n_j] -= f_x
-            accum['y'][n_j] -= f_y
+            accum[n_i] = accum[n_i] + f
+            accum[n_j] = accum[n_j] - f
 
     def update_positions(self, accum):
         for node in self.grafo[0]:
-            self.posiciones[node][0] +=  accum['x'][node]
-            self.posiciones[node][1] +=  accum['y'][node]
+            self.posiciones[node] = self.posiciones[node] + accum[node]
 
     def step(self):
         accum = self.initialize_accumulators
         self.compute_attraction_forces(accum)
         self.compute_repulsion_forces(accum)
         self.update_positions(accum)
-        print(accum)
 
     def layout(self):
         """
