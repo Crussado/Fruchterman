@@ -47,6 +47,7 @@ class LayoutGraph:
         self.c2 = c2
 
         self.k = CONSTANTE_ESPARCIMIENTO * math.sqrt((MAX_X * MAX_Y)/len(self.grafo[0]))
+        self.centro_pantalla = np.array([MAX_X/2, MAX_Y/2])
 
     def coordenadas_aleatorias(self, vertices):
         posiciones = {}
@@ -91,10 +92,25 @@ class LayoutGraph:
         for node in self.grafo[0]:
             self.posiciones[node] = self.posiciones[node] + accum[node]
 
+    def compute_gravity_forces(self, accum):
+        menor_fuerza = np.linalg.norm(accum[self.grafo[0][0]])
+        for node in self.grafo[0]:
+            otra_fuerza = np.linalg.norm(accum[node])
+            if(menor_fuerza > otra_fuerza):
+                menor_fuerza = otra_fuerza
+
+        menor_fuerza /= 10 
+
+        for node in self.grafo[0]:
+            vector_gravedad = self.centro_pantalla - self.posiciones[node]
+            vector_gravedad_con_modulo_especifico = (vector_gravedad / (np.linalg.norm(vector_gravedad))) * menor_fuerza
+            accum[node] = accum[node] + vector_gravedad_con_modulo_especifico
+
     def step(self):
         accum = self.initialize_accumulators
         self.compute_attraction_forces(accum)
         self.compute_repulsion_forces(accum)
+        self.compute_gravity_forces(accum)
         self.update_positions(accum)
 
     def layout(self):
