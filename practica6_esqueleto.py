@@ -124,7 +124,29 @@ class LayoutGraph:
             vector_gravedad_con_modulo_especifico = (vector_gravedad / (np.linalg.norm(vector_gravedad))) * menor_fuerza
             accum[node] = accum[node] + vector_gravedad_con_modulo_especifico
 
+    def fix_border_case(self):
+        errors = True
+
+        while errors:
+            errors = False
+            forces = self.initialize_accumulators
+
+            for v in self.grafo[0]:
+                for u in self.grafo[0]:
+                    if v != u:
+                        distance = np.linalg.norm(self.posiciones[u] - self.posiciones[v])
+
+                        if distance <= EPSILON:
+                            f = np.random.rand(2)
+                            f = (f / (np.linalg.norm(f))) * CONSTANTE_REPULSION
+                            forces[u] = f
+                            forces[v] = -1 * f
+                            errors = True
+
+            self.update_positions(forces)
+
     def step(self):
+        self.fix_border_case()
         accum = self.initialize_accumulators
         self.compute_attraction_forces(accum)
         self.compute_repulsion_forces(accum)
