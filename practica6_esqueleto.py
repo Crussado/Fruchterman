@@ -12,7 +12,10 @@ import math
 
 CONSTANTE_REPULSION = 0.1
 CONSTANTE_ATRACCION = 5.0
+
 CONSTANTE_ESPARCIMIENTO = 1
+CONSTANTE_TEMPERATURA = 0.95
+EPSILON = 0.05
 
 MAX_X = 100
 MAX_Y = 100
@@ -46,6 +49,8 @@ class LayoutGraph:
         self.c1 = c1
         self.c2 = c2
 
+        self.temperatura = self.initialize_temperature
+
         self.k = CONSTANTE_ESPARCIMIENTO * math.sqrt((MAX_X * MAX_Y)/len(self.grafo[0]))
         self.centro_pantalla = np.array([MAX_X/2, MAX_Y/2])
 
@@ -54,6 +59,13 @@ class LayoutGraph:
         for v in vertices:
             posiciones[v] = np.array([random.randrange(0, MAX_X), random.randrange(0, MAX_Y)])
         return posiciones
+
+    @property
+    def initialize_temperature(self):
+        return 1
+
+    def update_temperature(self):
+        self.temperatura *= CONSTANTE_TEMPERATURA
 
     @property
     def initialize_accumulators(self):
@@ -90,6 +102,12 @@ class LayoutGraph:
 
     def update_positions(self, accum):
         for node in self.grafo[0]:
+            f = accum[node]
+            modulo_f = np.linalg.norm(f)
+            if (modulo_f  > self.temperatura):
+                f = (f / modulo_f) * self.temperatura
+                accum[node] = f
+
             self.posiciones[node] = self.posiciones[node] + accum[node]
 
     def compute_gravity_forces(self, accum):
@@ -112,6 +130,7 @@ class LayoutGraph:
         self.compute_repulsion_forces(accum)
         self.compute_gravity_forces(accum)
         self.update_positions(accum)
+        self.update_temperature()
 
     def layout(self):
         """
