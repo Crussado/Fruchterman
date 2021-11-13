@@ -40,6 +40,7 @@ class LayoutGraph:
         # Completar
         self.posiciones = self.coordenadas_aleatorias(self.grafo[0])
         self.fuerzas = {}
+        self.figure = plt.figure(1)
 
         # Guardo opciones
         self.iters = iters
@@ -145,6 +146,15 @@ class LayoutGraph:
 
             self.update_positions(forces)
 
+    def grafic(self):
+        for u, v in self.grafo[1]:
+            vert1 = self.posiciones[u].tolist()
+            vert2 = self.posiciones[v].tolist()
+            plt.plot([vert1[0], vert2[0]], [vert1[1], vert2[1]], marker='o')
+        plt.show()
+        plt.pause(0.1)
+        plt.close()
+
     def step(self):
         self.fix_border_case()
         accum = self.initialize_accumulators
@@ -153,17 +163,13 @@ class LayoutGraph:
         self.compute_gravity_forces(accum)
         self.update_positions(accum)
         self.update_temperature()
+        self.grafic()
 
     def layout(self):
         """
         Aplica el algoritmo de Fruchtermann-Reingold para obtener (y mostrar)
         un layout
         """
-        # for u, v in self.grafo[1]:
-        #     vert1 = self.posiciones[u].tolist()
-        #     vert2 = self.posiciones[v].tolist()
-        #     plt.plot([vert1[0], vert2[0]], [vert1[1], vert2[1]], marker='o')
-        # plt.show()
 
         for k in range(1, self.iters):
             self.step()
