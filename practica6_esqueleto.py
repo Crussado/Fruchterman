@@ -40,7 +40,6 @@ class LayoutGraph:
         # Completar
         self.posiciones = self.coordenadas_aleatorias(self.grafo[0])
         self.fuerzas = {}
-        self.figure = plt.figure(1)
 
         # Guardo opciones
         self.iters = iters
@@ -151,9 +150,9 @@ class LayoutGraph:
             vert1 = self.posiciones[u].tolist()
             vert2 = self.posiciones[v].tolist()
             plt.plot([vert1[0], vert2[0]], [vert1[1], vert2[1]], marker='o')
-        plt.show()
+        plt.draw()
         plt.pause(0.1)
-        plt.close()
+        plt.clf()
 
     def step(self):
         self.fix_border_case()
