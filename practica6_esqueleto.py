@@ -88,8 +88,8 @@ class LayoutGraph:
                     mod_fa = self.f_repulsion(distance)
                     f = mod_fa * (self.posiciones[n_j] - self.posiciones[n_i]) / distance
 
-                    accum[n_i] = accum[n_i] + f
-                    accum[n_j] = accum[n_j] - f
+                    accum[n_i] = accum[n_i] - f
+                    accum[n_j] = accum[n_j] + f
 
     def compute_attraction_forces(self, accum):
         for n_i, n_j in self.grafo[1]:
@@ -118,7 +118,6 @@ class LayoutGraph:
                 menor_fuerza = otra_fuerza
 
         menor_fuerza /= 10 
-
         for node in self.grafo[0]:
             vector_gravedad = self.centro_pantalla - self.posiciones[node]
             vector_gravedad_con_modulo_especifico = (vector_gravedad / (np.linalg.norm(vector_gravedad))) * menor_fuerza
