@@ -37,19 +37,17 @@ class LayoutGraph:
         # Guardo el grafo
         self.grafo = grafo
 
-        # Inicializo estado
-        # Completar
-        self.posiciones = self.coordenadas_aleatorias(self.grafo[0])
-        self.fuerzas = {}
-
-        # Guardo opciones
         self.iters = iters
         self.verbose = verbose
-        # TODO: faltan opciones
         self.refresh = refresh
+
+        # Inicializo estado
+        self.posiciones = self.coordenadas_aleatorias(self.grafo[0])
+
+        # Guardo opciones
+        # TODO: faltan opciones
         self.c1 = c1
         self.c2 = c2
-
         self.temperatura = self.initialize_temperature
 
         self.k = CONSTANTE_ESPARCIMIENTO * math.sqrt((MAX_X * MAX_Y)/len(self.grafo[0]))
@@ -245,12 +243,6 @@ def main():
 
     grafo = lee_grafo_archivo(args.file_name)
 
-    # Descomentar abajo para ver funcionamiento de argparse
-    # print(args.verbose)
-    # print(args.iters)
-    # print(args.file_name)
-    # print(args.temp)
-    # return
     # TODO: Borrar antes de la entrega
     # Creamos nuestro objeto LayoutGraph
     layout_gr = LayoutGraph(
