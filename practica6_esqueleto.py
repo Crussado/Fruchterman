@@ -15,6 +15,7 @@ CONSTANTE_ATRACCION = 5.0
 
 CONSTANTE_ESPARCIMIENTO = 1
 CONSTANTE_TEMPERATURA = 0.95
+TEMPERATURA = 50.0
 EPSILON = 0.05
 
 MAX_X = 100
@@ -62,7 +63,7 @@ class LayoutGraph:
 
     @property
     def initialize_temperature(self):
-        return 1
+        return TEMPERATURA
 
     def update_temperature(self):
         self.temperatura *= CONSTANTE_TEMPERATURA
@@ -214,14 +215,6 @@ def main():
         type=int,
         help='Cada cuantas iteraciones mostrar el nuevo grafo',
         default=1
-    )
-
-    # Temperatura inicial
-    parser.add_argument(
-        '--temp',
-        type=float,
-        help='Temperatura inicial',
-        default=100.0
     )
 
     # Archivo del cual leer el grafo
