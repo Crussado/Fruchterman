@@ -56,6 +56,9 @@ class LayoutGraph:
         self.centro_pantalla = np.array([MAX_X/2, MAX_Y/2])
 
     def coordenadas_aleatorias(self, vertices):
+        if(self.verbose):
+            print("Se están sacando las coordenadas de los vértices del grafo en forma aleatoria.")
+        
         posiciones = {}
         for v in vertices:
             posiciones[v] = np.array([random.randrange(0, MAX_X), random.randrange(0, MAX_Y)])
@@ -82,6 +85,9 @@ class LayoutGraph:
         return self.k**2 / distance
 
     def compute_repulsion_forces(self, accum):
+        if(self.verbose):
+            print("Se está sacando la fuerza de repulsión para afectar a los vértices del grafo.")
+
         for n_i in self.grafo[0]:
             for n_j in self.grafo[0]:
                 if n_i != n_j:
@@ -93,6 +99,9 @@ class LayoutGraph:
                     accum[n_j] = accum[n_j] + f
 
     def compute_attraction_forces(self, accum):
+        if(self.verbose):
+            print("Se está sacando la fuerza de atracción para afectar a los vértices del grafo.")
+
         for n_i, n_j in self.grafo[1]:
             distance = np.linalg.norm(self.posiciones[n_i] - self.posiciones[n_j])
             mod_fa = self.f_attraction(distance)
@@ -102,6 +111,9 @@ class LayoutGraph:
             accum[n_j] = accum[n_j] - f
 
     def update_positions(self, accum):
+        if(self.verbose):
+            print("Se actualizan las coordenadas de los vértices del grafo luego de haber sido afectados por la fuerza de atracción y repulsión, la temperatura y la gravedad.")
+
         for node in self.grafo[0]:
             f = accum[node]
             modulo_f = np.linalg.norm(f)
@@ -112,6 +124,8 @@ class LayoutGraph:
             self.posiciones[node] = self.posiciones[node] + accum[node]
 
     def compute_gravity_forces(self, accum):
+        if(self.verbose):
+            print("Se está sacando la fuerza de gravedad.")
         menor_fuerza = np.linalg.norm(accum[self.grafo[0][0]])
         for node in self.grafo[0]:
             otra_fuerza = np.linalg.norm(accum[node])
@@ -137,6 +151,8 @@ class LayoutGraph:
                         distance = np.linalg.norm(self.posiciones[u] - self.posiciones[v])
 
                         if distance <= EPSILON:
+                            if(self.verbose):
+                                print("El vértice %s y el vértice %s están muy juntos, por lo tanto, se están actualizando sus respectivas coordenadas.", u, v)
                             f = np.random.rand(2)
                             f = (f / (np.linalg.norm(f))) * CONSTANTE_REPULSION
                             forces[u] = f
@@ -146,6 +162,8 @@ class LayoutGraph:
             self.update_positions(forces)
 
     def grafic(self):
+        if(self.verbose):
+            print("Se está graficando el grafo.")
         for u, v in self.grafo[1]:
             vert1 = self.posiciones[u].tolist()
             vert2 = self.posiciones[v].tolist()
