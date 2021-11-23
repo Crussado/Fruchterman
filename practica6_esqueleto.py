@@ -6,20 +6,20 @@
 
 import argparse
 import matplotlib.pyplot as plt
+import matplotlib.axes as Axes
 import numpy as np
 import random
 import math
 
-CONSTANTE_REPULSION = 0.1
-CONSTANTE_ATRACCION = 5.0
+CONSTANTE_REPULSION = 0.4
+CONSTANTE_ATRACCION = 0.1
 
-CONSTANTE_ESPARCIMIENTO = 1
+CONSTANTE_ESPARCIMIENTO = 0.1
 CONSTANTE_TEMPERATURA = 0.95
-TEMPERATURA = 50.0
 EPSILON = 0.05
 
-MAX_X = 100
-MAX_Y = 100
+LARGO = 150
+ALTO = 150
 
 class LayoutGraph:
 
@@ -43,28 +43,44 @@ class LayoutGraph:
 
         # Inicializo estado
         self.posiciones = self.coordenadas_aleatorias(self.grafo[0])
-
+        
         # Guardo opciones
         # TODO: faltan opciones
         self.c1 = c1
         self.c2 = c2
         self.temperatura = self.initialize_temperature
 
-        self.k = CONSTANTE_ESPARCIMIENTO * math.sqrt((MAX_X * MAX_Y)/len(self.grafo[0]))
-        self.centro_pantalla = np.array([MAX_X/2, MAX_Y/2])
+        auxiliar = math.sqrt((LARGO * ALTO)/len(self.grafo[0]))
+        self.k1 = self.c1 * auxiliar
+        self.k2 = self.c2 * auxiliar
+        self.centro_pantalla = np.array([0, 0])
 
     def coordenadas_aleatorias(self, vertices):
         if(self.verbose):
             print("Se están sacando las coordenadas de los vértices del grafo en forma aleatoria.")
         
         posiciones = {}
+        mitad_largo = LARGO/2
+        aux1 = mitad_largo*0.05
+        mitad_alto = ALTO/2
+        aux2 = mitad_alto*0.05
+        rango_x = int(-mitad_largo + aux1) , int(mitad_largo - aux1)
+        rango_y = int(-mitad_alto + aux2) , int(mitad_alto - aux2)
         for v in vertices:
-            posiciones[v] = np.array([random.randrange(0, MAX_X), random.randrange(0, MAX_Y)])
+            posiciones[v] = np.array([random.randrange(rango_x[0], rango_x[1]), random.randrange(rango_y[0], rango_y[1])])
         return posiciones
+
+
+    def setear_ejes(self):
+        ax = plt.gca()
+        mitad = LARGO/2
+        ax.set_xlim([-mitad, mitad])
+        mitad = ALTO/2
+        ax.set_ylim([-mitad, mitad])
 
     @property
     def initialize_temperature(self):
-        return TEMPERATURA
+        return LARGO / 10
 
     def update_temperature(self):
         self.temperatura *= CONSTANTE_TEMPERATURA
@@ -77,10 +93,10 @@ class LayoutGraph:
         return accum
 
     def f_attraction(self, distance):
-        return distance**2 / self.k
+        return distance**2 / self.k2
 
     def f_repulsion(self, distance):
-        return self.k**2 / distance
+        return self.k1**2 / distance
 
     def compute_repulsion_forces(self, accum):
         if(self.verbose):
@@ -152,7 +168,7 @@ class LayoutGraph:
                             if(self.verbose):
                                 print("El vértice %s y el vértice %s están muy juntos, por lo tanto, se están actualizando sus respectivas coordenadas.", u, v)
                             f = np.random.rand(2)
-                            f = (f / (np.linalg.norm(f))) * CONSTANTE_REPULSION
+                            f = (f / (np.linalg.norm(f))) * CONSTANTE_ESPARCIMIENTO
                             forces[u] = f
                             forces[v] = -1 * f
                             errors = True
@@ -162,6 +178,7 @@ class LayoutGraph:
     def grafic(self):
         if(self.verbose):
             print("Se está graficando el grafo.")
+        self.setear_ejes()
         for u, v in self.grafo[1]:
             vert1 = self.posiciones[u].tolist()
             vert2 = self.posiciones[v].tolist()
@@ -253,7 +270,7 @@ def main():
         c2 = CONSTANTE_ATRACCION,
         verbose = args.verbose
     )
-    
+
     # Ejecutamos el layout
     layout_gr.layout()
     return
