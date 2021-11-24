@@ -10,8 +10,8 @@ import numpy as np
 import random
 import math
 
-CONSTANTE_REPULSION = 0.3
-CONSTANTE_ATRACCION = 0.15
+CONSTANTE_REPULSION = 0.1
+CONSTANTE_ATRACCION = 0.9
 
 ESPACIO_LIBRE = 0.1
 
@@ -44,11 +44,15 @@ class LayoutGraph:
 
         # Inicializo estado
         self.posiciones = self.coordenadas_aleatorias(self.grafo[0])
-        
+
         # Guardo opciones
         # TODO: faltan opciones
-        self.c1 = c1
-        self.c2 = c2
+        if(len(self.grafo[0])/len(self.grafo[1]) < 1.6):
+            self.c1 = 0.1
+            self.c2 = 0.9
+        else:
+            self.c1 = 0.3
+            self.c2 = 0.15
         self.temperatura = self.initialize_temperature
 
         auxiliar = math.sqrt((LARGO * ALTO)/len(self.grafo[0]))
