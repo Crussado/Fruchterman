@@ -4,6 +4,8 @@
 # Complementos Matematicos I
 # Ejemplo parseo argumentos
 
+#Grupo: Bobe Julio y Grau Marianela.
+
 import argparse
 import matplotlib.pyplot as plt
 import numpy as np
@@ -28,14 +30,12 @@ ALTO = 150
 
 class LayoutGraph:
 
-    def __init__(self, grafo, iters, refresh, c1, c2, verbose=False):
+    def __init__(self, grafo, iters, refresh, verbose=False):
         """
         Parámetros:
         grafo: grafo en formato lista
         iters: cantidad de iteraciones a realizar
         refresh: cada cuántas iteraciones graficar. Si su valor es cero, entonces debe graficarse solo al final.
-        c1: constante de repulsión
-        c2: constante de atracción
         verbose: si está encendido, activa los comentarios
         """
 
@@ -50,7 +50,6 @@ class LayoutGraph:
         self.posiciones = self.coordenadas_aleatorias(self.grafo[0])
 
         # Guardo opciones
-        # TODO: faltan opciones
         if(len(self.grafo[0])/len(self.grafo[1]) < RELACION_ARISTAS_VERTICES):
             self.c1 = CONSTANTE_REPULSION
             self.c2 = CONSTANTE_ATRACCION
@@ -135,7 +134,7 @@ class LayoutGraph:
 
     def update_positions(self, accum):
         if(self.verbose):
-            print("Se actualizan las coordenadas de los vértices del grafo luego de haber sido afectados por la fuerza de atracción y repulsión, la temperatura y la gravedad.")
+            print("Se actualizan las coordenadas de los vértices del grafo luego de haber sido afectados por la fuerza de atracción, repulsión y la gravedad.")
 
         for node in self.grafo[0]:
             f = accum[node]
@@ -178,7 +177,7 @@ class LayoutGraph:
                             if(self.verbose):
                                 print("El vértice %s y el vértice %s están muy juntos, por lo tanto, se están actualizando sus respectivas coordenadas.", u, v)
 
-                            f = np.random.rand(2)
+                            f = np.random.uniform(-1, 1, (1, 2))
                             f = (f / (np.linalg.norm(f))) * CONSTANTE_ESPARCIMIENTO
                             forces[u] = f
                             forces[v] = -1 * f
@@ -293,14 +292,11 @@ def main():
 
     grafo = lee_grafo_archivo(args.file_name)
 
-    # TODO: Borrar antes de la entrega
     # Creamos nuestro objeto LayoutGraph
     layout_gr = LayoutGraph(
-        grafo,  # TODO: Cambiar para usar grafo leido de archivo
+        grafo,
         iters = args.iters,
         refresh = args.refresh,
-        c1 = CONSTANTE_REPULSION,
-        c2 = CONSTANTE_ATRACCION,
         verbose = args.verbose
     )
 
