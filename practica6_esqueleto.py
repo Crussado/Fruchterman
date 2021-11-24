@@ -11,7 +11,11 @@ import random
 import math
 
 CONSTANTE_REPULSION = 0.1
+CONSTANTE_REPULSION_POBLADO = 0.3
 CONSTANTE_ATRACCION = 0.9
+CONSTANTE_ATRACCION_POBLADO = 0.15
+
+RELACION_ARISTAS_VERTICES = 1.6
 
 ESPACIO_LIBRE = 0.1
 
@@ -47,12 +51,12 @@ class LayoutGraph:
 
         # Guardo opciones
         # TODO: faltan opciones
-        if(len(self.grafo[0])/len(self.grafo[1]) < 1.6):
-            self.c1 = 0.1
-            self.c2 = 0.9
+        if(len(self.grafo[0])/len(self.grafo[1]) < RELACION_ARISTAS_VERTICES):
+            self.c1 = CONSTANTE_REPULSION
+            self.c2 = CONSTANTE_ATRACCION
         else:
-            self.c1 = 0.3
-            self.c2 = 0.15
+            self.c1 = CONSTANTE_REPULSION_POBLADO
+            self.c2 = CONSTANTE_ATRACCION_POBLADO
         self.temperatura = self.initialize_temperature
 
         auxiliar = math.sqrt((LARGO * ALTO)/len(self.grafo[0]))
