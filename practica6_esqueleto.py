@@ -141,6 +141,7 @@ class LayoutGraph:
     def compute_gravity_forces(self, accum):
         if(self.verbose):
             print("Se está sacando la fuerza de gravedad.")
+
         menor_fuerza = np.linalg.norm(accum[self.grafo[0][0]])
         for node in self.grafo[0]:
             otra_fuerza = np.linalg.norm(accum[node])
@@ -168,6 +169,7 @@ class LayoutGraph:
                         if distance <= EPSILON:
                             if(self.verbose):
                                 print("El vértice %s y el vértice %s están muy juntos, por lo tanto, se están actualizando sus respectivas coordenadas.", u, v)
+
                             f = np.random.rand(2)
                             f = (f / (np.linalg.norm(f))) * CONSTANTE_ESPARCIMIENTO
                             forces[u] = f
@@ -176,13 +178,25 @@ class LayoutGraph:
 
             self.update_positions(forces)
 
+    def fix_out_grafic(self, vertex):
+        if(vertex[0] > LARGO/2):
+            vertex[0] = LARGO/2
+        if(vertex[0] < -LARGO/2):
+            vertex[0] = -LARGO/2
+        if(vertex[1] > ALTO/2):
+            vertex[1] = ALTO/2
+        if(vertex[1] < -ALTO/2):
+            vertex[1] = -ALTO/2
+        return vertex
+
     def grafic(self):
         if(self.verbose):
             print("Se está graficando el grafo.")
+
         self.setear_ejes()
         for u, v in self.grafo[1]:
-            vert1 = self.posiciones[u].tolist()
-            vert2 = self.posiciones[v].tolist()
+            vert1 = self.fix_out_grafic(self.posiciones[u].tolist())
+            vert2 = self.fix_out_grafic(self.posiciones[v].tolist())
             plt.plot([vert1[0], vert2[0]], [vert1[1], vert2[1]], marker='o')
 
     def reset_grafic(self):
