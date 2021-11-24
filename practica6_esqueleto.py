@@ -6,16 +6,17 @@
 
 import argparse
 import matplotlib.pyplot as plt
-import matplotlib.axes as Axes
 import numpy as np
 import random
 import math
 
-CONSTANTE_REPULSION = 0.4
-CONSTANTE_ATRACCION = 0.1
+CONSTANTE_REPULSION = 0.3
+CONSTANTE_ATRACCION = 0.15
 
-CONSTANTE_ESPARCIMIENTO = 0.1
+ESPACIO_LIBRE = 0.1
+
 CONSTANTE_TEMPERATURA = 0.95
+CONSTANTE_ESPARCIMIENTO = 0.1
 EPSILON = 0.05
 
 LARGO = 150
@@ -60,10 +61,10 @@ class LayoutGraph:
             print("Se están sacando las coordenadas de los vértices del grafo en forma aleatoria.")
         
         posiciones = {}
-        mitad_largo = LARGO/2
-        aux1 = mitad_largo*0.05
-        mitad_alto = ALTO/2
-        aux2 = mitad_alto*0.05
+        mitad_largo = LARGO / 2
+        aux1 = mitad_largo* ESPACIO_LIBRE
+        mitad_alto = ALTO / 2
+        aux2 = mitad_alto* ESPACIO_LIBRE
         rango_x = int(-mitad_largo + aux1) , int(mitad_largo - aux1)
         rango_y = int(-mitad_alto + aux2) , int(mitad_alto - aux2)
         for v in vertices:
@@ -73,9 +74,9 @@ class LayoutGraph:
 
     def setear_ejes(self):
         ax = plt.gca()
-        mitad = LARGO/2
+        mitad = LARGO / 2
         ax.set_xlim([-mitad, mitad])
-        mitad = ALTO/2
+        mitad = ALTO / 2
         ax.set_ylim([-mitad, mitad])
 
     @property
@@ -93,10 +94,10 @@ class LayoutGraph:
         return accum
 
     def f_attraction(self, distance):
-        return distance**2 / self.k2
+        return distance** 2 / self.k2
 
     def f_repulsion(self, distance):
-        return self.k1**2 / distance
+        return self.k1** 2 / distance
 
     def compute_repulsion_forces(self, accum):
         if(self.verbose):
@@ -183,8 +184,10 @@ class LayoutGraph:
             vert1 = self.posiciones[u].tolist()
             vert2 = self.posiciones[v].tolist()
             plt.plot([vert1[0], vert2[0]], [vert1[1], vert2[1]], marker='o')
+
+    def reset_grafic(self):
         plt.draw()
-        plt.pause(0.1)
+        plt.pause(0.2)
         plt.clf()
 
     def step(self):
@@ -195,16 +198,24 @@ class LayoutGraph:
         self.compute_gravity_forces(accum)
         self.update_positions(accum)
         self.update_temperature()
-        self.grafic()
 
     def layout(self):
         """
         Aplica el algoritmo de Fruchtermann-Reingold para obtener (y mostrar)
         un layout
         """
-
+        iteraciones = 0
         for k in range(1, self.iters):
+            iteraciones += 1
             self.step()
+            if(iteraciones == self.refresh):
+                self.grafic()
+                self.reset_grafic()
+                iteraciones = 0
+
+        if(self.refresh == 0):
+            self.grafic()
+            plt.show()
 
         pass
 
